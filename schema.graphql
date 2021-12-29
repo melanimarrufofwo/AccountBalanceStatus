@@ -1,0 +1,18 @@
+type ExampleEntity @entity {
+  id: ID!
+  count: BigInt!
+  target: Bytes! # address
+  frozen: Boolean! # bool
+}
+type AccountAction @entity {
+  id: ID!
+  address: String!  # account address
+  count: BigInt!
+  inOrOut:  Boolean! # in:false,out:true
+  timestamp: BigInt!
+  balance: BigInt!
+}
+type AccountBalance @entity {
+  id: ID!
+  balance: BigInt!
+}

@@ -1,0 +1,33 @@
+specVersion: 0.0.2
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Tesra
+    network: mainnet
+    source:
+      address: "0x58959E0C71080434f237bD42d07Cd84B74CeF438"
+      abi: Tesra
+      startBlock: 6098288
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - FrozenFunds
+        - Transfer
+        - Approval
+        - Burn
+      abis:
+        - name: Tesra
+          file: Tesra/abis/Tesra.json
+      eventHandlers:
+        - event: FrozenFunds(address,bool)
+          handler: handleFrozenFunds
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: Burn(indexed address,uint256)
+          handler: handleBurn
+      file: Tesra/Tesra.wasm
