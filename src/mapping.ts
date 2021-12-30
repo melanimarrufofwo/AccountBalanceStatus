@@ -6,7 +6,7 @@ import {
   Approval,
   Burn
 } from "../generated/Tesra/Tesra"
-import { ExampleEntity, AccountAction, AccountBalance } from "../generated/schema"
+import { ExampleEntity, AccountAction } from "../generated/schema"
 
 export function handleFrozenFunds(event: FrozenFunds): void {
   // Entities can be loaded from the store using a string ID; this ID
@@ -66,49 +66,54 @@ export function handleFrozenFunds(event: FrozenFunds): void {
 }
 
 export function handleTransfer(event: Transfer): void {
-  let account0 = AccountBalance.load(event.params.to.toHex())
-  let account1 = AccountBalance.load(event.transaction.from.toHex())
-
-    if (!account0) {
-      account0 = new AccountBalance(event.params.to.toHex())
-      account0.balance = BigInt.fromI32(0)
-    }
-    if (!account1) {
-      account1 = new AccountBalance(event.transaction.from.toHex())
-      account1.balance = BigInt.fromI32(0)
-    }
-  if(event.params.to.toHex() != event.transaction.from.toHex()){
-    account0.balance = account0.balance.plus(event.params.value)
-    account1.balance = account1.balance.minus(event.params.value)
-    account0.save()
-    account1.save()
-  }
-  let entity0 = AccountAction.load(event.params.to.toHex()+"0")
-  let entity1 = AccountAction.load(event.transaction.from.toHex()+"1")
+  let entity0_id = event.params.to.toHex()
+  let entity1_id = event.transaction.from.toHex()
+  let time = event.block.timestamp
+  let entity0 = AccountAction.load(entity0_id)
+  let entity1 = AccountAction.load(entity1_id)
   if (!entity0) {
-    entity0 = new AccountAction(event.params.to.toHex()+"0")
-    entity0.count = BigInt.fromI32(0)
+    entity0 = new AccountAction(entity0_id)
+    entity0.inCount = BigInt.fromI32(0)
+    entity0.outCount = BigInt.fromI32(0)
+    entity0.balance = BigInt.fromI64(0)
   }
   if (!entity1) {
-    entity1 = new AccountAction(event.transaction.from.toHex()+"1")
-    entity1.count = BigInt.fromI32(0)
+    entity1 = new AccountAction(entity1_id)
+    entity1.inCount = BigInt.fromI32(0)
+    entity1.outCount = BigInt.fromI32(0)
+    entity1.balance = BigInt.fromI64(1000000000000000)
   }
-  entity0.address = event.params.to.toHex()
-  entity0.count = entity0.count.plus(BigInt.fromI32(1))
-  entity0.inOrOut = false
-  entity0.timestamp = event.block.timestamp
-  entity0.balance = account0.balance
-  entity0.save()
 
-  entity1.address = event.transaction.from.toHex()
-  entity1.count = entity1.count.plus(BigInt.fromI32(1))
-  entity1.inOrOut = true
-  entity1.timestamp = event.block.timestamp
-  entity1.balance = account1.balance
+  entity0.inCount = entity0.inCount.plus(BigInt.fromI32(1))
+  entity0.inUpdateTime = time
+  entity0.timestamp = time
+  entity0.handleType = true
+
+  entity1.outCount = entity1.outCount.plus(BigInt.fromI32(1))
+  entity1.outUpdateTime = time
+  entity1.timestamp = time
+  entity1.handleType = true
+
+  if(entity0.id != entity1.id){
+    entity0.balance = entity0.balance.plus(event.params.value)
+    entity1.balance = entity1.balance.minus(event.params.value)
+  }
+
+  entity0.save()
   entity1.save()
 
 }
 
 export function handleApproval(event: Approval): void {}
 
-export function handleBurn(event: Burn): void {}
+export function handleBurn(event: Burn): void {
+  let entity1_id = event.transaction.from.toHex()
+  let entity1 = AccountAction.load(entity1_id)
+  if (!entity1) {
+    entity1 = new AccountAction(entity1_id)
+  }
+  entity1.timestamp = event.block.timestamp
+  entity1.handleType = false
+  entity1.balance = entity1.balance.minus(event.params.value)
+  entity1.save()
+}

@@ -79,8 +79,10 @@ export class AccountAction extends Entity {
     super();
     this.set("id", Value.fromString(id));
 
-    this.set("address", Value.fromString(""));
-    this.set("count", Value.fromBigInt(BigInt.zero()));
+    this.set("inCount", Value.fromBigInt(BigInt.zero()));
+    this.set("outCount", Value.fromBigInt(BigInt.zero()));
+    this.set("inUpdateTime", Value.fromBigInt(BigInt.zero()));
+    this.set("outUpdateTime", Value.fromBigInt(BigInt.zero()));
     this.set("timestamp", Value.fromBigInt(BigInt.zero()));
     this.set("balance", Value.fromBigInt(BigInt.zero()));
   }
@@ -111,31 +113,40 @@ export class AccountAction extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get address(): string {
-    let value = this.get("address");
-    return value!.toString();
-  }
-
-  set address(value: string) {
-    this.set("address", Value.fromString(value));
-  }
-
-  get count(): BigInt {
-    let value = this.get("count");
+  get inCount(): BigInt {
+    let value = this.get("inCount");
     return value!.toBigInt();
   }
 
-  set count(value: BigInt) {
-    this.set("count", Value.fromBigInt(value));
+  set inCount(value: BigInt) {
+    this.set("inCount", Value.fromBigInt(value));
   }
 
-  get inOrOut(): boolean {
-    let value = this.get("inOrOut");
-    return value!.toBoolean();
+  get outCount(): BigInt {
+    let value = this.get("outCount");
+    return value!.toBigInt();
   }
 
-  set inOrOut(value: boolean) {
-    this.set("inOrOut", Value.fromBoolean(value));
+  set outCount(value: BigInt) {
+    this.set("outCount", Value.fromBigInt(value));
+  }
+
+  get inUpdateTime(): BigInt {
+    let value = this.get("inUpdateTime");
+    return value!.toBigInt();
+  }
+
+  set inUpdateTime(value: BigInt) {
+    this.set("inUpdateTime", Value.fromBigInt(value));
+  }
+
+  get outUpdateTime(): BigInt {
+    let value = this.get("outUpdateTime");
+    return value!.toBigInt();
+  }
+
+  set outUpdateTime(value: BigInt) {
+    this.set("outUpdateTime", Value.fromBigInt(value));
   }
 
   get timestamp(): BigInt {
@@ -155,48 +166,13 @@ export class AccountAction extends Entity {
   set balance(value: BigInt) {
     this.set("balance", Value.fromBigInt(value));
   }
-}
 
-export class AccountBalance extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-
-    this.set("balance", Value.fromBigInt(BigInt.zero()));
+  get handleType(): boolean {
+    let value = this.get("handleType");
+    return value!.toBoolean();
   }
 
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save AccountBalance entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        "Cannot save AccountBalance entity with non-string ID. " +
-          'Considering using .toHex() to convert the "id" to a string.'
-      );
-      store.set("AccountBalance", id.toString(), this);
-    }
-  }
-
-  static load(id: string): AccountBalance | null {
-    return changetype<AccountBalance | null>(store.get("AccountBalance", id));
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value!.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get balance(): BigInt {
-    let value = this.get("balance");
-    return value!.toBigInt();
-  }
-
-  set balance(value: BigInt) {
-    this.set("balance", Value.fromBigInt(value));
+  set handleType(value: boolean) {
+    this.set("handleType", Value.fromBoolean(value));
   }
 }

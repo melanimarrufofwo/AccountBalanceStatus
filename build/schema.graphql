@@ -5,14 +5,12 @@ type ExampleEntity @entity {
   frozen: Boolean! # bool
 }
 type AccountAction @entity {
-  id: ID!
-  address: String!  # account address
-  count: BigInt!
-  inOrOut:  Boolean! # in:false,out:true
+  id: ID! # account address
+  inCount: BigInt!
+  outCount: BigInt!
+  inUpdateTime: BigInt!
+  outUpdateTime: BigInt!
   timestamp: BigInt!
   balance: BigInt!
-}
-type AccountBalance @entity {
-  id: ID!
-  balance: BigInt!
+  handleType: Boolean! # true: transfer; false: burn
 }
